@@ -1,1 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fellowship Trivia Challenge</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #f39c12;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #game-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+
+        .correct { background-color: var(--success) !important; }
+        .wrong { background-color: var(--danger) !important; }
+
+        #score-display { font-weight: bold; margin-bottom: 1rem; color: #555; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h2>Fellowship Trivia</h2>
+    <div id="score-display">Score: <span id="score">0</span></div>
+    
+    <div id="question-area">
+        <h3 id="question-text">Loading question...</h3>
+        <div id="answer-buttons">
+            </div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h3>Game Over!</h3>
+        <p>Your final score is <span id="final-score">0</span> out of <span id="total-qs">0</span></p>
+        <button class="btn" onclick="resetGame()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "How many books are in the New Testament?", a: ["27", "39", "12", "66"], correct: 0 },
+        { q: "Who was known as the 'Dreamer' in Genesis?", a: ["David", "Joseph", "Moses", "Paul"], correct: 1 },
+        { q: "Which fruit of the spirit starts with 'P'?", a: ["Patience", "Peace", "Both", "Power"], correct: 2 },
+        { q: "Who stepped out of the boat to walk on water?", a: ["John", "Andrew", "Peter", "James"], correct: 2 }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+
+    const qText = document.getElementById("question-text");
+    const btnArea = document.getElementById("answer-buttons");
+    const scoreSpan = document.getElementById("score");
+
+    function loadQuestion() {
+        const q = questions[currentIdx];
+        qText.innerText = q.q;
+        btnArea.innerHTML = "";
+        
+        q.a.forEach((choice, index) => {
+            const button = document.createElement("button");
+            button.innerText = choice;
+            button.classList.add("btn");
+            button.onclick = () => checkAnswer(index, button);
+            btnArea.appendChild(button);
+        });
+    }
+
+    function checkAnswer(selected, button) {
+        const correct = questions[currentIdx].correct;
+        const allBtns = btnArea.querySelectorAll(".btn");
+        
+        // Disable all buttons after choice
+        allBtns.forEach(b => b.disabled = true);
+
+        if (selected === correct) {
+            button.classList.add("correct");
+            score++;
+            scoreSpan.innerText = score;
+        } else {
+            button.classList.add("wrong");
+            allBtns[correct].classList.add("correct");
+        }
+
+        setTimeout(() => {
+            currentIdx++;
+            if (currentIdx < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }, 1500);
+    }
+
+    function showResults() {
+        document.getElementById("question-area").classList.add("hidden");
+        document.getElementById("result-screen").classList.remove("hidden");
+        document.getElementById("final-score").innerText = score;
+        document.getElementById("total-qs").innerText = questions.length;
+    }
+
+    function resetGame() {
+        currentIdx = 0;
+        score = 0;
+        scoreSpan.innerText = 0;
+        document.getElementById("question-area").classList.remove("hidden");
+        document.getElementById("result-screen").classList.add("hidden");
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
